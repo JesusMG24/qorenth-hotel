@@ -1,0 +1,120 @@
+<section class="w-screen flex flex-col text-gray-800 shadow">
+  <img src="/images/hero.jpg" class="inset-0 w-full h-full object-cover" />
+  <nav class="bg-[#efe5d8] h-30 flex items-center justify-evenly">
+    <button
+      id="first-btn"
+      class="transition-colors duration-300 hover:text-yellow-600 py-2 hover:border-b-3 hover:border-yellow-600"
+      >Llamános</button
+    >
+    <button
+      id="second-btn"
+      class="transition-colors duration-300 hover:text-yellow-600 py-2 hover:border-b-3 hover:border-yellow-600"
+      >Dirección</button
+    >
+    <button
+      id="third-btn"
+      class="transition-colors duration-300 hover:text-yellow-600 py-2 hover:border-b-3 hover:border-yellow-600"
+      >Tiempo de Llegada</button
+    >
+  </nav>
+  <!-- Hidden Call Us card -->
+  <div id="first-card" class="bg-[#efe5d8] h-20 text-center hidden">
+    <a href="tel:+529991234567" class="underline hover:text-gray-600"
+      >+52 999 123 4567</a
+    >
+    <p class="underline hover:text-gray-600">hotelmerida@hoteles.com</p>
+  </div>
+
+  <!-- Hidden Location card -->
+  <div id="second-card" class="bg-[#efe5d8] h-20 text-center hidden">
+    <p class="font-bold text-black text-xl">MÉRIDA, YUCATÁN, MÉXICO</p>
+    <a
+      target="_blank"
+      href="https://maps.app.goo.gl/vi2zcPR35RMMVBZr6"
+      class="underline hover:text-gray-600">Centro Histórico</a
+    >
+  </div>
+
+  <!-- Hidden Arrival card -->
+  <div id="third-card" class="bg-[#efe5d8] h-20 text-center hidden">
+    <p>Check-in a las 3:00 PM</p>
+    <p>Check-out a las 12:00 PM</p>
+  </div>
+</section>
+
+<script is:inline>
+  function hideAllCards() {
+    // Hide all cards
+    document.getElementById("first-card").classList.add("hidden");
+    document.getElementById("first-card").classList.remove("block");
+    document.getElementById("second-card").classList.add("hidden");
+    document.getElementById("second-card").classList.remove("block");
+    document.getElementById("third-card").classList.add("hidden");
+    document.getElementById("third-card").classList.remove("block");
+
+    // Remove active styles from all buttons
+    document
+      .getElementById("first-btn")
+      .classList.remove("border-yellow-600", "border-b-3", "text-yellow-600");
+    document
+      .getElementById("second-btn")
+      .classList.remove("border-yellow-600", "border-b-3", "text-yellow-600");
+    document
+      .getElementById("third-btn")
+      .classList.remove("border-yellow-600", "border-b-3", "text-yellow-600");
+  }
+
+  document.getElementById("first-btn").addEventListener("click", () => {
+    const button = document.getElementById("first-btn");
+    const card = document.getElementById("first-card");
+
+    if (card.classList.contains("hidden")) {
+      hideAllCards();
+      card.classList.add("block");
+      card.classList.remove("hidden");
+      button.classList.add(
+        "border-yellow-600",
+        "border-b-3",
+        "text-yellow-600"
+      );
+    } else {
+      hideAllCards();
+    }
+  });
+
+  document.getElementById("second-btn").addEventListener("click", () => {
+    const button = document.getElementById("second-btn");
+    const card = document.getElementById("second-card");
+
+    if (card.classList.contains("hidden")) {
+      hideAllCards();
+      card.classList.add("block");
+      card.classList.remove("hidden");
+      button.classList.add(
+        "border-yellow-600",
+        "border-b-3",
+        "text-yellow-600"
+      );
+    } else {
+      hideAllCards();
+    }
+  });
+
+  document.getElementById("third-btn").addEventListener("click", () => {
+    const button = document.getElementById("third-btn");
+    const card = document.getElementById("third-card");
+
+    if (card.classList.contains("hidden")) {
+      hideAllCards();
+      card.classList.add("block");
+      card.classList.remove("hidden");
+      button.classList.add(
+        "border-yellow-600",
+        "border-b-3",
+        "text-yellow-600"
+      );
+    } else {
+      hideAllCards();
+    }
+  });
+</script>

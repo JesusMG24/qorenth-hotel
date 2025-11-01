@@ -1,0 +1,217 @@
+<header class="w-screen shadow">
+  <div class="flex justify-between px-10 border-b border-black">
+    <h1 class="text-center text-yellow-600 text-xs">
+      <strong class="text-2xl">HOTEL</strong><br />MÉRIDA, YUCATAN<br />CENTRO
+      HISTÓRICO
+    </h1>
+    <button id="menu-btn" class="md:hidden focus:outline-none">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="2"
+        stroke="currentColor"
+        class="p-2 w-12 h-12 border bg-gray-200 border-gray-500 rounded-full shadow"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M4 6h16M4 12h16m-7 6h7"></path>
+      </svg>
+    </button>
+  </div>
+  <div
+    id="date-container"
+    class="px-10 py-3 text-center text-gray-600 border-b border-black"
+  >
+    <span id="current-date"></span> / <span id="tomorrow-date"></span>
+  </div>
+  <div class="p-3 flex flex-col gap-3">
+    <p class="text-gray-600 text-center text-sm">
+      <span id="booking-summary" class="cursor-pointer hover:text-yellow-600"
+        >1 habitación, 1 huésped</span
+      > | <span>Precios especiales</span>
+    </p>
+    <button
+      id="modify-booking"
+      class="w-full text-white bg-black hover:bg-yellow-600 py-3"
+    >
+      Ver habitaciones y precios
+    </button>
+  </div>
+</header>
+
+<!-- Modal Overlay -->
+<div
+  id="booking-modal"
+  class="fixed inset-0 bg-opacity-50 backdrop-blur-sm hidden z-50 items-center justify-center"
+>
+  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h3 class="text-lg font-semibold">Modificar reserva</h3>
+      <button id="close-modal" class="text-gray-500 hover:text-gray-700">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div class="space-y-4">
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-medium">Habitaciones:</label>
+        <div class="flex items-center gap-3">
+          <button
+            id="rooms-minus"
+            class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center"
+            >-</button
+          >
+          <span id="rooms-count" class="w-8 text-center font-semibold">1</span>
+          <button
+            id="rooms-plus"
+            class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center"
+            >+</button
+          >
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <label class="text-sm font-medium">Huéspedes:</label>
+        <div class="flex items-center gap-3">
+          <button
+            id="guests-minus"
+            class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center"
+            >-</button
+          >
+          <span id="guests-count" class="w-8 text-center font-semibold">1</span>
+          <button
+            id="guests-plus"
+            class="w-8 h-8 bg-gray-200 hover:bg-gray-300 rounded-full flex items-center justify-center"
+            >+</button
+          >
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6 flex gap-3">
+      <button
+        id="cancel-changes"
+        class="flex-1 py-2 px-4 border border-gray-300 rounded-md hover:bg-yellow-600"
+      >
+        Cancelar
+      </button>
+      <button
+        id="apply-changes"
+        class="flex-1 py-2 px-4 bg-black text-white rounded-md hover:bg-yellow-600"
+      >
+        Aplicar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  // Date functionality
+  const currentDate = new Date();
+  const tomorrow = new Date(currentDate);
+  tomorrow.setDate(currentDate.getDate() + 1);
+
+  const options = {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  };
+
+  document.getElementById("current-date").textContent =
+    currentDate.toLocaleDateString("es-ES", options);
+  document.getElementById("tomorrow-date").textContent =
+    tomorrow.toLocaleDateString("es-ES", options);
+
+  // Booking system
+  let rooms = 1;
+  let guests = 1;
+  let tempRooms = 1;
+  let tempGuests = 1;
+
+  function updateSummary() {
+    const summary = `${rooms} habitación${rooms > 1 ? "es" : ""}, ${guests} huésped${guests > 1 ? "es" : ""}`;
+    document.getElementById("booking-summary").textContent = summary;
+  }
+
+  function updateModalCounts() {
+    document.getElementById("rooms-count").textContent = tempRooms;
+    document.getElementById("guests-count").textContent = tempGuests;
+  }
+
+  // Modal controls - Changed from "modify-booking" to "booking-summary"
+  document.getElementById("booking-summary").addEventListener("click", () => {
+    tempRooms = rooms;
+    tempGuests = guests;
+    updateModalCounts();
+    document.getElementById("booking-modal").classList.remove("hidden");
+    document.getElementById("booking-modal").classList.add("flex");
+  });
+
+  document.getElementById("close-modal").addEventListener("click", () => {
+    document.getElementById("booking-modal").classList.add("hidden");
+    document.getElementById("booking-modal").classList.remove("flex");
+  });
+
+  document.getElementById("cancel-changes").addEventListener("click", () => {
+    document.getElementById("booking-modal").classList.add("hidden");
+    document.getElementById("booking-modal").classList.remove("flex");
+  });
+
+  document.getElementById("apply-changes").addEventListener("click", () => {
+    rooms = tempRooms;
+    guests = tempGuests;
+    updateSummary();
+    document.getElementById("booking-modal").classList.add("hidden");
+    document.getElementById("booking-modal").classList.remove("flex");
+  });
+
+  // Room controls
+  document.getElementById("rooms-plus").addEventListener("click", () => {
+    if (tempRooms < 10) {
+      tempRooms++;
+      updateModalCounts();
+    }
+  });
+
+  document.getElementById("rooms-minus").addEventListener("click", () => {
+    if (tempRooms > 1) {
+      tempRooms--;
+      updateModalCounts();
+    }
+  });
+
+  // Guest controls
+  document.getElementById("guests-plus").addEventListener("click", () => {
+    if (tempGuests < 20) {
+      tempGuests++;
+      updateModalCounts();
+    }
+  });
+
+  document.getElementById("guests-minus").addEventListener("click", () => {
+    if (tempGuests > 1) {
+      tempGuests--;
+      updateModalCounts();
+    }
+  });
+
+  // Close modal when clicking outside
+  document.getElementById("booking-modal").addEventListener("click", (e) => {
+    if (e.target.id === "booking-modal") {
+      document.getElementById("booking-modal").classList.add("hidden");
+    }
+  });
+</script>
