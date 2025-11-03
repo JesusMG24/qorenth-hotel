@@ -36,38 +36,38 @@ const translatePath = useTranslatedPath(lang);
     src="/images/residences2.jpg"
     class="hidden absolute h-130 w-170 object-cover right-55 top-120 xl:block border-8 border-white"
   />
-</section>
-<div class="relative overflow-hidden h-75 md:h-140 xl:hidden">
-  <img
-    id="residenceImage1"
-    src="/images/residences1.jpg"
-    class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100"
-  />
-  <img
-    id="residenceImage2"
-    src="/images/residences2.jpg"
-    class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0"
-  />
+  <div class="relative overflow-hidden h-75 md:h-140 xl:hidden">
+    <img
+      id="residenceImage1"
+      src="/images/residences1.jpg"
+      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100"
+    />
+    <img
+      id="residenceImage2"
+      src="/images/residences2.jpg"
+      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0"
+    />
 
-  <!-- Navigation arrows -->
-  <button
-    id="residencePrevBtn"
-    class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/70 bg-opacity-50 hover:bg-opacity-75 py-2 px-4 rounded-full"
-  >
-    &#8249;
-  </button>
-  <button
-    id="residenceNextBtn"
-    class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/70 bg-opacity-50 hover:bg-opacity-75 py-2 px-4 rounded-full"
-  >
-    &#8250;
-  </button>
+    <!-- Navigation arrows -->
+    <button
+      id="residencePrevBtn"
+      class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/70 bg-opacity-50 hover:bg-opacity-75 py-2 px-4 rounded-full"
+    >
+      &#8249;
+    </button>
+    <button
+      id="residenceNextBtn"
+      class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/70 bg-opacity-50 hover:bg-opacity-75 py-2 px-4 rounded-full"
+    >
+      &#8250;
+    </button>
 
-  <!-- Counter -->
-  <div class="absolute right-0 bottom-0 text-white bg-black px-7 py-4">
-    <p><span id="residenceSliderCount">1</span>/2</p>
+    <!-- Counter -->
+    <div class="absolute right-0 bottom-0 text-white bg-black px-7 py-4">
+      <p><span id="residenceSliderCount">1</span>/2</p>
+    </div>
   </div>
-</div>
+</section>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
