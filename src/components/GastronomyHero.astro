@@ -1,0 +1,21 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<section class="w-screen">
+  <img
+    src="/images/food1.webp"
+    class="inset-0 w-full h-full xl:h-150 object-cover"
+  />
+  <div class="p-10 flex flex-col gap-5">
+    <h2 class="font-bold text-3xl xl:text-5xl text-center">
+      {t("gastronomy.hero.title")}
+    </h2>
+    <p class="text-center text-gray-700 xl:px-120">
+      {t("gastronomy.hero.subtitle")}
+    </p>
+  </div>
+</section>

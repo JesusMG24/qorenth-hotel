@@ -1,0 +1,175 @@
+---
+import {
+  getLangFromUrl,
+  useTranslations,
+  useTranslatedPath,
+} from "../i18n/utils";
+import { languages } from "../i18n/ui";
+import Calendar from "./Calendar.astro";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const translatePath = useTranslatedPath(lang);
+---
+
+<header class="w-screen shadow">
+  <div
+    class="flex justify-between items-center px-10 xl:px-100 border-b border-black"
+  >
+    <a href={translatePath("/")} class="text-center text-yellow-600 text-xs">
+      <strong class="text-2xl">{t("hotel.name")}</strong><br />{
+        t("hotel.location")
+      }<br />{t("hotel.area")}
+    </a>
+
+    <!-- Language Switcher and Menu Button Container -->
+    <div class="flex items-center gap-4">
+      <!-- Language Switcher -->
+      <div class="relative">
+        <button
+          id="lang-switcher-btn"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-yellow-600 focus:outline-none"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
+            ></path>
+          </svg>
+          {languages[lang].slice(0, 2).toUpperCase()}
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+
+        <!-- Language Dropdown -->
+        <div
+          id="lang-dropdown"
+          class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden"
+        >
+          {
+            Object.entries(languages).map(([langCode, langName]) => (
+              <a
+                href={translatePath("/rooms", langCode)}
+                class={`block px-4 py-2 text-sm hover:bg-yellow-600 hover:text-white transition-colors ${
+                  lang === langCode
+                    ? "bg-black text-white font-medium"
+                    : "text-gray-700"
+                }`}
+              >
+                {langName}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Selection Section -->
+  <div class="xl:flex xl:w-full xl:items-center xl:justify-center xl:py-5">
+    <Calendar t={t} />
+  </div>
+</header>
+
+<script is:inline>
+  // Language Switcher
+  const langSwitcherBtn = document.getElementById("lang-switcher-btn");
+  const langDropdown = document.getElementById("lang-dropdown");
+
+  langSwitcherBtn?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    langDropdown.classList.toggle("hidden");
+  });
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    if (
+      !langSwitcherBtn?.contains(e.target) &&
+      !langDropdown?.contains(e.target)
+    ) {
+      langDropdown.classList.add("hidden");
+    }
+  });
+
+  // Close on Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      langDropdown.classList.add("hidden");
+    }
+  });
+
+  // Booking summary/modal restore logic
+  let rooms = 1;
+  let guests = 1;
+  let tempRooms = 1;
+  let tempGuests = 1;
+
+  // Wait for DOMContentLoaded to ensure elements exist
+  document.addEventListener("DOMContentLoaded", () => {
+    const bookingSummaryEl = document.getElementById("booking-summary");
+    if (!bookingSummaryEl) return;
+
+    const singleRoomText = bookingSummaryEl
+      .getAttribute("data-single-room")
+      .split(",");
+    const multipleRoomsText = bookingSummaryEl
+      .getAttribute("data-multiple-rooms")
+      .split(",");
+
+    function updateSummary() {
+      let roomText, guestText;
+
+      const singleRoomFullText =
+        bookingSummaryEl.getAttribute("data-single-room");
+      const multipleRoomsFullText = bookingSummaryEl.getAttribute(
+        "data-multiple-rooms"
+      );
+
+      if (rooms === 1) {
+        const roomWord = singleRoomFullText.split(",")[0].trim();
+        roomText = `1 ${roomWord}`;
+      } else {
+        const roomWord = multipleRoomsFullText.split(",")[0].trim();
+        roomText = `${rooms} ${roomWord}`;
+      }
+
+      if (guests === 1) {
+        const guestWord = singleRoomFullText.split(",")[1].trim();
+        guestText = `1 ${guestWord}`;
+      } else {
+        const guestWord = multipleRoomsFullText.split(",")[1].trim();
+        guestText = `${guests} ${guestWord}`;
+      }
+
+      const summary = `${roomText}, ${guestText}`;
+      bookingSummaryEl.textContent = summary;
+    }
+
+    function restoreRoomsGuestsFromLocalStorage() {
+      const roomsStr = localStorage.getItem("rooms");
+      const guestsStr = localStorage.getItem("guests");
+      if (roomsStr) rooms = parseInt(roomsStr, 10);
+      if (guestsStr) guests = parseInt(guestsStr, 10);
+      updateSummary();
+    }
+
+    restoreRoomsGuestsFromLocalStorage();
+  });
+</script>

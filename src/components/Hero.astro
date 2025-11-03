@@ -1,44 +1,85 @@
-<section class="w-screen flex flex-col text-gray-800 shadow">
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<section class="w-screen flex flex-col text-gray-800 shadow xl:h-[86vh]">
   <img src="/images/hero.jpg" class="inset-0 w-full h-full object-cover" />
-  <nav class="bg-[#efe5d8] h-30 flex items-center justify-evenly">
+  <nav class="bg-[#efe5d8] h-30 flex items-center justify-evenly xl:hidden">
     <button
       id="first-btn"
       class="transition-colors duration-300 hover:text-yellow-600 py-2 hover:border-b-3 hover:border-yellow-600"
-      >Llamános</button
+      >{t("hero.call")}</button
     >
     <button
       id="second-btn"
       class="transition-colors duration-300 hover:text-yellow-600 py-2 hover:border-b-3 hover:border-yellow-600"
-      >Dirección</button
+      >{t("hero.location")}</button
     >
     <button
       id="third-btn"
       class="transition-colors duration-300 hover:text-yellow-600 py-2 hover:border-b-3 hover:border-yellow-600"
-      >Tiempo de Llegada</button
+      >{t("hero.arrival")}</button
     >
   </nav>
+
+  <!-- Desktop Nav -->
+  <nav
+    class="hidden xl:flex bg-[#efe5d8] h-30 xl:h-60 items-center justify-evenly"
+  >
+    <div class="flex flex-col gap-3">
+      <h3 class="py-2">
+        {t("hero.call")}
+      </h3>
+      <a href="tel:+529991234567" class="underline hover:text-gray-600"
+        >{t("contact.phone")}</a
+      >
+      <p>{t("contact.email")}</p>
+    </div>
+    <div class="flex flex-col gap-3">
+      <h3 class="py-2">
+        {t("hero.location")}
+      </h3>
+      <p>{t("hero.location.full")}</p>
+      <a
+        target="_blank"
+        href="https://maps.app.goo.gl/vi2zcPR35RMMVBZr6"
+        class="underline hover:text-gray-600">{t("hero.location.area")}</a
+      >
+    </div>
+    <div class="flex flex-col gap-3">
+      <h3 class="py-2">
+        {t("hero.arrival")}
+      </h3>
+      <p>{t("hero.checkin")}</p>
+      <p>{t("hero.checkout")}</p>
+    </div>
+  </nav>
+
   <!-- Hidden Call Us card -->
   <div id="first-card" class="bg-[#efe5d8] h-20 text-center hidden">
     <a href="tel:+529991234567" class="underline hover:text-gray-600"
-      >+52 999 123 4567</a
+      >{t("contact.phone")}</a
     >
-    <p class="underline hover:text-gray-600">hotelmerida@hoteles.com</p>
+    <p class="underline hover:text-gray-600">{t("contact.email")}</p>
   </div>
 
   <!-- Hidden Location card -->
   <div id="second-card" class="bg-[#efe5d8] h-20 text-center hidden">
-    <p class="font-bold text-black text-xl">MÉRIDA, YUCATÁN, MÉXICO</p>
+    <p class="font-bold text-black text-xl">{t("hero.location.full")}</p>
     <a
       target="_blank"
       href="https://maps.app.goo.gl/vi2zcPR35RMMVBZr6"
-      class="underline hover:text-gray-600">Centro Histórico</a
+      class="underline hover:text-gray-600">{t("hero.location.area")}</a
     >
   </div>
 
   <!-- Hidden Arrival card -->
   <div id="third-card" class="bg-[#efe5d8] h-20 text-center hidden">
-    <p>Check-in a las 3:00 PM</p>
-    <p>Check-out a las 12:00 PM</p>
+    <p>{t("hero.checkin")}</p>
+    <p>{t("hero.checkout")}</p>
   </div>
 </section>
 

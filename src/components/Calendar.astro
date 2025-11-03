@@ -1,0 +1,336 @@
+---
+const { t } = Astro.props;
+
+const translations = {
+  calendarSelectCheckin: t("calendar.select.checkin"),
+  calendarSelectCheckout: t("calendar.select.checkout"),
+  months: [
+    t("calendar.months.january"),
+    t("calendar.months.february"),
+    t("calendar.months.march"),
+    t("calendar.months.april"),
+    t("calendar.months.may"),
+    t("calendar.months.june"),
+    t("calendar.months.july"),
+    t("calendar.months.august"),
+    t("calendar.months.september"),
+    t("calendar.months.october"),
+    t("calendar.months.november"),
+    t("calendar.months.december"),
+  ],
+};
+---
+
+<!-- Single Calendar Button -->
+<div
+  id="date-container"
+  class="w-full xl:w-max px-10 py-3 md:p-0 border-b md:border-none border-black flex justify-center"
+>
+  <button
+    id="calendar-btn"
+    class="flex items-center gap-2 text-gray-600 hover:text-yellow-600 cursor-pointer border border-gray-300 rounded px-4 py-2 bg-white"
+  >
+    <svg
+      class="w-5 h-5 text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+      ></path>
+    </svg>
+    <span id="calendar-btn-label" class="text-sm font-semibold"></span>
+  </button>
+</div>
+
+<!-- Calendar Modal (unchanged) -->
+<div
+  id="calendar-modal"
+  class="fixed inset-0 bg-white/30 bg-opacity-50 backdrop-blur-sm hidden z-50 items-center justify-center"
+>
+  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="calendar-title" class="font-semibold">
+        {t("calendar.select.date")}
+      </h3>
+      <button id="close-calendar" class="text-gray-500 hover:text-gray-700">
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Calendar Navigation -->
+    <div class="flex justify-between items-center mb-4">
+      <button id="prev-month" class="p-2 hover:bg-gray-100 rounded">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+      <h4 id="calendar-month-year" class="text-lg font-semibold"></h4>
+      <button id="next-month" class="p-2 hover:bg-gray-100 rounded">
+        <svg
+          class="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 5l7 7-7 7"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Calendar Grid -->
+    <div class="grid grid-cols-7 gap-1 mb-4">
+      <div class="text-center text-xs font-medium text-gray-500 py-2">
+        {t("calendar.days.su")}
+      </div>
+      <div class="text-center text-xs font-medium text-gray-500 py-2">
+        {t("calendar.days.mo")}
+      </div>
+      <div class="text-center text-xs font-medium text-gray-500 py-2">
+        {t("calendar.days.tu")}
+      </div>
+      <div class="text-center text-xs font-medium text-gray-500 py-2">
+        {t("calendar.days.we")}
+      </div>
+      <div class="text-center text-xs font-medium text-gray-500 py-2">
+        {t("calendar.days.th")}
+      </div>
+      <div class="text-center text-xs font-medium text-gray-500 py-2">
+        {t("calendar.days.fr")}
+      </div>
+      <div class="text-center text-xs font-medium text-gray-500 py-2">
+        {t("calendar.days.sa")}
+      </div>
+    </div>
+    <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
+
+    <div class="mt-6 flex gap-3">
+      <button
+        id="calendar-cancel"
+        class="flex-1 py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100"
+      >
+        {t("calendar.cancel")}
+      </button>
+      <button
+        id="calendar-confirm"
+        class="flex-1 py-2 px-4 bg-black text-white rounded-md hover:bg-yellow-600"
+      >
+        {t("calendar.confirm")}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline define:vars={{ translations }}>
+  // Calendar functionality (self-contained)
+  let currentCalendarDate = new Date();
+  let selectedDate = null;
+  let isSelectingCheckin = true;
+  let checkinDate = new Date();
+  let checkoutDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // Tomorrow
+
+  const calendarModal = document.getElementById("calendar-modal");
+  const calendarTitle = document.getElementById("calendar-title");
+  const calendarMonthYear = document.getElementById("calendar-month-year");
+  const calendarGrid = document.getElementById("calendar-grid");
+  const prevMonthBtn = document.getElementById("prev-month");
+  const nextMonthBtn = document.getElementById("next-month");
+  const closeCalendarBtn = document.getElementById("close-calendar");
+  const calendarConfirmBtn = document.getElementById("calendar-confirm");
+  const calendarCancelBtn = document.getElementById("calendar-cancel");
+  const calendarBtn = document.getElementById("calendar-btn");
+  const calendarBtnLabel = document.getElementById("calendar-btn-label");
+
+  // Initialize dates
+  updateDateDisplays();
+
+  function updateDateDisplays() {
+    const options = { month: "short", day: "numeric" };
+    const checkinStr = checkinDate.toLocaleDateString(undefined, options);
+    const checkoutStr = checkoutDate.toLocaleDateString(undefined, options);
+    calendarBtnLabel.textContent = `${checkinStr} – ${checkoutStr}`;
+  }
+
+  function renderCalendar() {
+    const year = currentCalendarDate.getFullYear();
+    const month = currentCalendarDate.getMonth();
+
+    // Update header with translated month name
+    const translatedMonth = translations.months[month];
+    calendarMonthYear.textContent = `${translatedMonth} ${year}`;
+
+    // Clear grid
+    calendarGrid.innerHTML = "";
+
+    // Get first day of month and number of days
+    const firstDay = new Date(year, month, 1);
+    const lastDay = new Date(year, month + 1, 0);
+    const daysInMonth = lastDay.getDate();
+    const startingDayOfWeek = firstDay.getDay();
+
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      const emptyCell = document.createElement("div");
+      emptyCell.className = "h-8";
+      calendarGrid.appendChild(emptyCell);
+    }
+
+    // Add days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dayCell = document.createElement("button");
+      const cellDate = new Date(year, month, day);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      dayCell.textContent = day;
+      dayCell.className =
+        "h-8 w-8 text-sm rounded hover:bg-gray-100 flex items-center justify-center";
+
+      // Disable past dates
+      if (cellDate < today) {
+        dayCell.disabled = true;
+        dayCell.className += " text-gray-300 cursor-not-allowed";
+      } else {
+        // Highlight selected dates
+        if (isDateSelected(cellDate)) {
+          dayCell.className += " bg-black text-white hover:bg-yellow-600";
+        } else if (isDateInRange(cellDate)) {
+          dayCell.className += " bg-yellow-100 hover:bg-yellow-200";
+        }
+
+        dayCell.addEventListener("click", () => {
+          selectedDate = new Date(cellDate);
+          if (isSelectingCheckin) {
+            checkinDate = new Date(selectedDate);
+            // If checkout is before checkin, set checkout to day after checkin
+            if (checkoutDate <= checkinDate) {
+              checkoutDate = new Date(checkinDate);
+              checkoutDate.setDate(checkoutDate.getDate() + 1);
+            }
+            isSelectingCheckin = false; // Next click is for checkout
+          } else {
+            // If selecting checkout and it's before checkin, swap them
+            if (selectedDate <= checkinDate) {
+              checkoutDate = new Date(checkinDate);
+              checkinDate = new Date(selectedDate);
+              checkoutDate.setDate(checkoutDate.getDate() + 1);
+            } else {
+              checkoutDate = new Date(selectedDate);
+            }
+            isSelectingCheckin = true; // Reset for next open
+          }
+          renderCalendar();
+        });
+      }
+
+      calendarGrid.appendChild(dayCell);
+    }
+  }
+
+  function isDateSelected(date) {
+    return (
+      date.getTime() === checkinDate.getTime() ||
+      date.getTime() === checkoutDate.getTime()
+    );
+  }
+
+  function isDateInRange(date) {
+    return date > checkinDate && date < checkoutDate;
+  }
+
+  function saveBookingToLocalStorage() {
+    localStorage.setItem("checkin", checkinDate.toISOString());
+    localStorage.setItem("checkout", checkoutDate.toISOString());
+  }
+
+  // Single calendar button event
+  calendarBtn.addEventListener("click", () => {
+    isSelectingCheckin = true;
+    calendarTitle.textContent = translations.calendarSelectCheckin;
+    currentCalendarDate = new Date(checkinDate);
+    renderCalendar();
+    calendarModal.classList.remove("hidden");
+    calendarModal.classList.add("flex");
+  });
+
+  // Calendar navigation
+  prevMonthBtn.addEventListener("click", () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    renderCalendar();
+  });
+
+  nextMonthBtn.addEventListener("click", () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    renderCalendar();
+  });
+
+  // Calendar modal controls
+  closeCalendarBtn.addEventListener("click", () => {
+    calendarModal.classList.add("hidden");
+    calendarModal.classList.remove("flex");
+    isSelectingCheckin = true;
+  });
+
+  calendarCancelBtn.addEventListener("click", () => {
+    calendarModal.classList.add("hidden");
+    calendarModal.classList.remove("flex");
+    isSelectingCheckin = true;
+  });
+
+  calendarConfirmBtn.addEventListener("click", () => {
+    updateDateDisplays();
+    saveBookingToLocalStorage();
+    calendarModal.classList.add("hidden");
+    calendarModal.classList.remove("flex");
+    isSelectingCheckin = true;
+  });
+
+  // Close calendar when clicking outside
+  calendarModal.addEventListener("click", (e) => {
+    if (e.target.id === "calendar-modal") {
+      calendarModal.classList.add("hidden");
+      calendarModal.classList.remove("flex");
+      isSelectingCheckin = true;
+    }
+  });
+
+  // On page load, restore from localStorage if available:
+  function restoreBookingFromLocalStorage() {
+    const checkinStr = localStorage.getItem("checkin");
+    const checkoutStr = localStorage.getItem("checkout");
+    if (checkinStr && checkoutStr) {
+      checkinDate = new Date(checkinStr);
+      checkoutDate = new Date(checkoutStr);
+      updateDateDisplays();
+    }
+  }
+  restoreBookingFromLocalStorage();
+</script>

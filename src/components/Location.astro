@@ -1,0 +1,40 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<section class="flex flex-col xl:mb-5">
+  <div class="p-10 flex flex-col gap-5 xl:px-100">
+    <h2 class="font-bold text-2xl">{t("location.title")}</h2>
+    <a
+      href="https://maps.app.goo.gl/vi2zcPR35RMMVBZr6"
+      target="_blank"
+      class="underline hover:no-underline hover:text-gray-700"
+      set:html={t("location.address")}
+    />
+    <a
+      href="tel:+529991234567"
+      class="underline hover:text-gray-700"
+      set:html={t("location.call")}
+    />
+    <div class="flex gap-2">
+      <button
+        class="bg-black text-white py-2 px-4 hover:bg-yellow-600 hover:text-black"
+        >{t("location.email")}</button
+      >
+      <button
+        class="bg-black text-white py-2 px-4 hover:bg-yellow-600 hover:text-black"
+        >{t("location.maps")}</button
+      >
+    </div>
+  </div>
+  <iframe
+    src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3619.59562279897!2d-89.6222399168941!3d20.966257523037473!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2smx!4v1762088051404!5m2!1ses-419!2smx"
+    class="w-full xl:px-100 h-50 md:h-80"
+    style="border:0;"
+    allowfullscreen=""
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade"></iframe>
+</section>

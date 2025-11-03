@@ -1,0 +1,21 @@
+---
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+---
+
+<section class="w-screen">
+  <img
+    src="/images/meetings1.jpg"
+    class="inset-0 w-full h-full xl:h-150 object-cover"
+  />
+  <div class="p-10 flex flex-col gap-5">
+    <h2 class="font-bold text-3xl xl:text-5xl text-center">
+      {t("meetings.hero.title")}
+    </h2>
+    <p class="text-center text-gray-700 xl:px-120">
+      {t("meetings.hero.subtitle")}
+    </p>
+  </div>
+</section>

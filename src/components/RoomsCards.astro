@@ -1,0 +1,445 @@
+---
+import BookingModal from "./BookingModal.astro";
+import { getLangFromUrl, useTranslations } from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const viewDetailsText = t("rooms.card.viewDetails");
+const hideDetailsText = t("rooms.card.hideDetails");
+
+interface Room {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  size: string;
+  capacity: number;
+  features: string[];
+  images: string[];
+  popular?: boolean;
+}
+
+const rooms: Room[] = [
+  {
+    id: "colonial",
+    name: "Colonial Room",
+    description:
+      "Charming traditional room with colonial architecture and courtyard views",
+    price: 85,
+    currency: "USD",
+    size: "22 m²",
+    capacity: 2,
+    features: [
+      "Colonial Courtyard View",
+      "Free WiFi",
+      "Air Conditioning",
+      "Traditional Décor",
+      "Minibar",
+      "Room Service",
+    ],
+    images: ["/images/room-colonial-1.jpg", "/images/room-colonial-2.jpg"],
+  },
+  {
+    id: "heritage",
+    name: "Heritage Room",
+    description:
+      "Spacious room blending Mayan heritage with modern comfort in historic setting",
+    price: 125,
+    currency: "USD",
+    size: "30 m²",
+    capacity: 3,
+    features: [
+      "Historic Plaza View",
+      "Free WiFi",
+      "Air Conditioning",
+      "Artisan Furnishings",
+      "Minibar",
+      "Coffee Machine",
+      "High Ceilings",
+      "Room Service",
+    ],
+    images: ["/images/room-heritage-1.jpg", "/images/room-heritage-2.jpg"],
+    popular: true,
+  },
+  {
+    id: "casa-montejo",
+    name: "Casa Montejo Suite",
+    description:
+      "Elegant suite inspired by Mérida's founding family with separate living area",
+    price: 220,
+    currency: "USD",
+    size: "50 m²",
+    capacity: 4,
+    features: [
+      "Cathedral View",
+      "Free WiFi",
+      "Air Conditioning",
+      "Living Area",
+      "Antique Furnishings",
+      "Private Balcony",
+      "Coffee Machine",
+      "Minibar",
+      "Butler Service",
+    ],
+    images: [
+      "/images/room-casa-montejo-1.jpg",
+      "/images/room-casa-montejo-2.jpg",
+    ],
+  },
+  {
+    id: "gran-casa",
+    name: "Gran Casa Presidencial",
+    description:
+      "Magnificent presidential suite with panoramic views of the historic center and Plaza Grande",
+    price: 380,
+    currency: "USD",
+    size: "85 m²",
+    capacity: 6,
+    features: [
+      "Plaza Grande View",
+      "Free WiFi",
+      "Air Conditioning",
+      "Private Terrace",
+      "Living & Dining Area",
+      "Antique Art Collection",
+      "Premium Bar",
+      "Jacuzzi",
+      "Concierge Service",
+      "Historic Architecture",
+    ],
+    images: ["/images/room-gran-casa-1.jpg", "/images/room-gran-casa-2.jpg"],
+  },
+];
+
+// Get all unique features for the filter
+const allFeatures = [...new Set(rooms.flatMap((room) => room.features))].sort();
+---
+
+<section>
+  <!-- Filter Section -->
+  <div class="p-5 xl:py-0 xl:px-120 bg-gray-50 rounded-lg overflow-hidden">
+    <!-- Filter Header (Always Visible) -->
+    <div
+      class="flex items-center justify-between cursor-pointer"
+      id="filter-toggle"
+    >
+      <div class="flex items-center gap-3">
+        <h3 class="font-bold text-lg">{t("rooms.filter.title")}</h3>
+        <span
+          id="active-filters-count"
+          class="hidden bg-black text-white text-xs px-2 py-1 rounded-full"
+          >0</span
+        >
+      </div>
+      <div class="flex items-center gap-2">
+        <span id="results-count" class="text-sm text-gray-600 font-medium">
+          {rooms.length}
+          {t("rooms.filter.results")}
+        </span>
+        <svg
+          id="filter-chevron"
+          class="w-5 h-5 text-gray-600 transition-transform duration-200"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 9l-7 7-7-7"></path>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Filter Content (Collapsible) -->
+    <div id="filter-content" class="hidden px-4 pb-4">
+      <div
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mb-4 max-h-60 sm:max-h-none overflow-y-auto"
+      >
+        {
+          allFeatures.map((feature) => (
+            <label class="flex items-center gap-2 bg-white px-3 py-2 rounded-md shadow-sm cursor-pointer hover:bg-blue-50 text-sm">
+              <input
+                type="checkbox"
+                value={feature}
+                class="feature-filter rounded"
+              />
+              <span class="truncate">{feature}</span>
+            </label>
+          ))
+        }
+      </div>
+      <div class="flex gap-3 pt-2 border-t border-gray-200">
+        <button
+          id="clear-filters"
+          class="px-4 py-2 bg-gray-500 text-white text-sm rounded hover:bg-gray-600 transition-colors"
+        >
+          {t("rooms.filter.clearAll")}
+        </button>
+        <button
+          id="apply-filters"
+          class="px-4 py-2 bg-black text-white text-sm rounded hover:bg-yellow-600 transition-colors sm:hidden"
+        >
+          {t("rooms.filter.apply")}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rooms Grid -->
+  <div class="flex flex-col gap-5 p-5 xl:px-120" id="rooms-container">
+    {
+      rooms.map((room) => (
+        <div
+          class="shadow-xl flex flex-col gap-2 room-card rounded-lg overflow-hidden"
+          data-room-id={room.id}
+          data-features={JSON.stringify(room.features)}
+        >
+          <img
+            src={room.images[0]}
+            alt={room.name}
+            class="inset-0 w-full h-60 md:h-120 object-cover bg-gray-200"
+          />
+          <div class="p-5 flex flex-col gap-2 items-start">
+            <h3 class="font-bold text-xl">{room.name}</h3>
+            <button
+              class="underline text-black font-bold text-sm view-details-btn"
+              data-view-details={viewDetailsText}
+              data-hide-details={hideDetailsText}
+            >
+              {viewDetailsText}
+            </button>
+
+            {/* Features section - hidden by default */}
+            <div class="features-section hidden w-full p-4 bg-gray-50 rounded-lg">
+              <h4 class="font-semibold text-lg mb-3">
+                {t("rooms.card.features")}
+              </h4>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {room.features.map((feature) => (
+                  <div class="flex items-center gap-2">
+                    <span class="text-green-600">✓</span>
+                    <span class="text-sm">{feature}</span>
+                  </div>
+                ))}
+              </div>
+              <div class="mt-4 text-sm text-gray-600">
+                <p>
+                  <strong>{t("rooms.card.size")}:</strong> {room.size}
+                </p>
+                <p>
+                  <strong>Capacity:</strong> {room.capacity}{" "}
+                  {t("rooms.card.capacityValue")}
+                </p>
+                <p class="mt-2">{room.description}</p>
+              </div>
+            </div>
+
+            <button
+              class="book-now-btn w-full bg-black text-white py-4 text-xl rounded-lg hover:bg-yellow-600 transition-colors"
+              data-id={room.id}
+              data-name={room.name}
+              data-price={room.price}
+              data-currency={room.currency}
+              data-image={room.images[0]}
+            >
+              {t("rooms.card.bookFrom")} {room.price} USD
+            </button>
+          </div>
+        </div>
+      ))
+    }
+  </div>
+
+  <!-- No results message -->
+  <div id="no-results" class="hidden text-center py-12">
+    <div class="text-gray-500 text-lg">
+      <p class="mb-2">{t("rooms.filter.noResults")}</p>
+      <p class="text-sm">
+        {t("rooms.filter.clearAll")}
+      </p>
+    </div>
+  </div>
+
+  <!-- add booking modal component -->
+  <BookingModal t={t} />
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const viewDetailsButtons = document.querySelectorAll(
+      ".view-details-btn"
+    ) as NodeListOf<HTMLButtonElement>;
+    const featureFilters = document.querySelectorAll(
+      ".feature-filter"
+    ) as NodeListOf<HTMLInputElement>;
+    const clearFiltersBtn = document.getElementById(
+      "clear-filters"
+    ) as HTMLButtonElement;
+    const applyFiltersBtn = document.getElementById(
+      "apply-filters"
+    ) as HTMLButtonElement;
+    const resultsCount = document.getElementById(
+      "results-count"
+    ) as HTMLElement;
+    const roomsContainer = document.getElementById(
+      "rooms-container"
+    ) as HTMLElement;
+    const noResults = document.getElementById("no-results") as HTMLElement;
+    const filterToggle = document.getElementById(
+      "filter-toggle"
+    ) as HTMLElement;
+    const filterContent = document.getElementById(
+      "filter-content"
+    ) as HTMLElement;
+    const filterChevron = document.getElementById(
+      "filter-chevron"
+    ) as HTMLElement;
+    const activeFiltersCount = document.getElementById(
+      "active-filters-count"
+    ) as HTMLElement;
+
+    let isFilterOpen = false;
+
+    // Toggle filter panel
+    filterToggle.addEventListener("click", function () {
+      isFilterOpen = !isFilterOpen;
+
+      if (isFilterOpen) {
+        filterContent.classList.remove("hidden");
+        filterChevron.style.transform = "rotate(180deg)";
+      } else {
+        filterContent.classList.add("hidden");
+        filterChevron.style.transform = "rotate(0deg)";
+      }
+    });
+
+    // Room details toggle functionality
+    viewDetailsButtons.forEach((button) => {
+      button.addEventListener("click", function (this) {
+        const roomCard = this.closest(".room-card");
+        if (!roomCard) return; // null check
+
+        const featuresSection = roomCard.querySelector(".features-section");
+        if (!featuresSection) return; // null check
+
+        featuresSection.classList.toggle("hidden");
+
+        if (featuresSection.classList.contains("hidden")) {
+          this.textContent = this.dataset.viewDetails ?? "";
+        } else {
+          this.textContent = this.dataset.hideDetails ?? "";
+        }
+      });
+    });
+
+    // Filter functionality
+    function filterRooms() {
+      const selectedFeatures = Array.from(featureFilters)
+        .filter((checkbox) => checkbox.checked)
+        .map((checkbox) => checkbox.value);
+
+      const roomCards = document.querySelectorAll(
+        ".room-card"
+      ) as NodeListOf<HTMLElement>;
+      let visibleCount = 0;
+
+      roomCards.forEach((card) => {
+        const roomFeatures = JSON.parse(card.dataset.features || "[]");
+
+        // Show room if no filters selected or if room has all selected features
+        const shouldShow =
+          selectedFeatures.length === 0 ||
+          selectedFeatures.every((feature) => roomFeatures.includes(feature));
+
+        if (shouldShow) {
+          card.style.display = "flex";
+          visibleCount++;
+        } else {
+          card.style.display = "none";
+        }
+      });
+
+      // Update active filters count
+      if (selectedFeatures.length > 0) {
+        activeFiltersCount.textContent = selectedFeatures.length.toString();
+        activeFiltersCount.classList.remove("hidden");
+      } else {
+        activeFiltersCount.classList.add("hidden");
+      }
+
+      // Update results count and show/hide no results message
+      if (visibleCount === 0 && selectedFeatures.length > 0) {
+        roomsContainer.style.display = "none";
+        noResults.classList.remove("hidden");
+        resultsCount.textContent = "No rooms found";
+      } else {
+        roomsContainer.style.display = "flex";
+        noResults.classList.add("hidden");
+        resultsCount.textContent = `${visibleCount} room${visibleCount !== 1 ? "s" : ""}`;
+      }
+    }
+
+    // Add event listeners to filter checkboxes
+    featureFilters.forEach((checkbox) => {
+      checkbox.addEventListener("change", function () {
+        // On desktop, filter immediately
+        if (window.innerWidth >= 640) {
+          filterRooms();
+        }
+      });
+    });
+
+    // Apply filters button (mobile only)
+    applyFiltersBtn.addEventListener("click", function () {
+      filterRooms();
+      // Close filter panel on mobile after applying
+      isFilterOpen = false;
+      filterContent.classList.add("hidden");
+      filterChevron.style.transform = "rotate(0deg)";
+    });
+
+    // Clear filters functionality
+    clearFiltersBtn.addEventListener("click", function () {
+      featureFilters.forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      filterRooms();
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", function () {
+      if (window.innerWidth >= 640) {
+        // On desktop, apply filters immediately
+        filterRooms();
+      }
+    });
+
+    // Book button wiring -> dispatch open-booking event with room details
+    function initBookButtons() {
+      const bookButtons = document.querySelectorAll(
+        ".book-now-btn"
+      ) as NodeListOf<HTMLButtonElement>;
+      bookButtons.forEach((btn) => {
+        btn.addEventListener("click", function (this: HTMLButtonElement) {
+          const detail = {
+            id: this.dataset.id ?? "",
+            name: this.dataset.name ?? "",
+            price: this.dataset.price ?? "",
+            currency: this.dataset.currency ?? "",
+            image: this.dataset.image ?? "",
+          };
+          document.dispatchEvent(new CustomEvent("open-booking", { detail }));
+        });
+      });
+    }
+
+    // call after DOM ready and whenever rooms are re-rendered
+    initBookButtons();
+
+    // Initial filter
+    filterRooms();
+  });
+</script>

@@ -1,0 +1,215 @@
+---
+const { t } = Astro.props;
+---
+
+<!-- Booking Modal -->
+<div
+  id="booking-modal"
+  class="fixed inset-0 bg-white/30 bg-opacity-50 backdrop-blur-sm hidden z-50 items-center justify-center px-4"
+>
+  <div class="bg-white text-black rounded-lg p-6 max-w-lg w-full shadow-xl">
+    <div class="flex justify-between items-center mb-4">
+      <h3 id="booking-modal-title" class="text-xl font-semibold">
+        {t("booking.title")}
+      </h3>
+      <button
+        id="booking-modal-close"
+        class="text-gray-500 hover:text-gray-700"
+        aria-label={t("booking.close")}
+      >
+        <svg
+          class="w-6 h-6"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
+
+    <div id="booking-modal-body" class="space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <div id="booking-room-name" class="font-semibold text-lg"></div>
+          <div id="booking-room-price" class="text-sm text-gray-600"></div>
+        </div>
+        <img
+          id="booking-room-thumb"
+          src=""
+          alt=""
+          class="w-20 h-14 object-cover rounded-md hidden"
+        />
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <label class="flex flex-col text-sm">
+          <span class="text-xs text-gray-500">{t("booking.checkin")}</span>
+          <input
+            id="booking-checkin"
+            type="date"
+            class="mt-1 p-2 border rounded"
+          />
+        </label>
+        <label class="flex flex-col text-sm">
+          <span class="text-xs text-gray-500">{t("booking.checkout")}</span>
+          <input
+            id="booking-checkout"
+            type="date"
+            class="mt-1 p-2 border rounded"
+          />
+        </label>
+      </div>
+
+      <div class="flex gap-2 items-center">
+        <label class="text-sm flex-1">
+          <span class="text-xs text-gray-500">{t("booking.rooms")}</span>
+          <input
+            id="booking-rooms"
+            type="number"
+            min="1"
+            value="1"
+            class="mt-1 p-2 border rounded w-full"
+          />
+        </label>
+        <label class="text-sm flex-1">
+          <span class="text-xs text-gray-500">{t("booking.guests")}</span>
+          <input
+            id="booking-guests"
+            type="number"
+            min="1"
+            value="1"
+            class="mt-1 p-2 border rounded w-full"
+          />
+        </label>
+      </div>
+
+      <div
+        id="booking-mock-result"
+        class="hidden p-3 rounded bg-green-50 text-green-700 text-sm"
+      >
+      </div>
+    </div>
+
+    <div class="mt-4 flex gap-3">
+      <button
+        id="booking-cancel"
+        class="flex-1 py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100"
+      >
+        {t("booking.cancel")}
+      </button>
+      <button
+        id="booking-confirm"
+        class="flex-1 py-2 px-4 bg-black text-white rounded-md hover:bg-yellow-600"
+      >
+        {t("booking.confirm")}
+      </button>
+    </div>
+  </div>
+</div>
+
+<script is:inline>
+  const modal = document.getElementById("booking-modal");
+  const closeBtn = document.getElementById("booking-modal-close");
+  const cancelBtn = document.getElementById("booking-cancel");
+  const confirmBtn = document.getElementById("booking-confirm");
+  const titleEl = document.getElementById("booking-modal-title");
+  const roomNameEl = document.getElementById("booking-room-name");
+  const roomPriceEl = document.getElementById("booking-room-price");
+  const roomThumb = document.getElementById("booking-room-thumb");
+  const resultEl = document.getElementById("booking-mock-result");
+  const checkinInput = document.getElementById("booking-checkin");
+  const checkoutInput = document.getElementById("booking-checkout");
+  const roomsInput = document.getElementById("booking-rooms");
+  const guestsInput = document.getElementById("booking-guests");
+
+  function restoreCalendarDates() {
+    const storedCheckin = localStorage.getItem("checkin");
+    const storedCheckout = localStorage.getItem("checkout");
+    if (storedCheckin && storedCheckout) {
+      checkinInput.value = storedCheckin.slice(0, 10);
+      checkoutInput.value = storedCheckout.slice(0, 10);
+    } else {
+      const today = new Date();
+      const tomorrow = new Date(Date.now() + 24 * 60 * 60 * 1000);
+      checkinInput.value = today.toISOString().slice(0, 10);
+      checkoutInput.value = tomorrow.toISOString().slice(0, 10);
+    }
+  }
+
+  function restoreRoomsGuests() {
+    const storedRooms = localStorage.getItem("rooms");
+    const storedGuests = localStorage.getItem("guests");
+    roomsInput.value = storedRooms ? parseInt(storedRooms, 10) : 1;
+    guestsInput.value = storedGuests ? parseInt(storedGuests, 10) : 1;
+  }
+
+  function openModalWith(room) {
+    titleEl.textContent = `${room.name}`;
+    roomNameEl.textContent = room.name;
+    roomPriceEl.textContent = `${room.price} ${room.currency}`;
+    if (room.image) {
+      roomThumb.src = room.image;
+      roomThumb.classList.remove("hidden");
+    } else {
+      roomThumb.classList.add("hidden");
+    }
+
+    restoreCalendarDates();
+    restoreRoomsGuests();
+    resultEl.classList.add("hidden");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    document.body.style.overflow = "";
+  }
+
+  document.addEventListener("open-booking", (e) => {
+    openModalWith(e.detail || {});
+  });
+
+  closeBtn.addEventListener("click", closeModal);
+  cancelBtn.addEventListener("click", closeModal);
+
+  confirmBtn.addEventListener("click", function () {
+    const rooms = parseInt(roomsInput.value, 10);
+    const guests = parseInt(guestsInput.value, 10);
+    const checkin = checkinInput.value;
+    const checkout = checkoutInput.value;
+
+    // Persist to localStorage
+    localStorage.setItem("checkin", new Date(checkin).toISOString());
+    localStorage.setItem("checkout", new Date(checkout).toISOString());
+    localStorage.setItem("rooms", rooms);
+    localStorage.setItem("guests", guests);
+
+    // Notify global state
+    document.dispatchEvent(
+      new CustomEvent("roomsGuestsUpdated", {
+        detail: { rooms, guests },
+      })
+    );
+
+    resultEl.textContent = `${rooms} ${rooms > 1 ? "${t('booking.rooms.labelPlural')}" : "${t('booking.rooms.label')}"} — ${guests} ${guests > 1 ? "${t('booking.guests.labelPlural')}" : "${t('booking.guests.label')}"} · ${checkin} → ${checkout}`;
+    resultEl.classList.remove("hidden");
+
+    setTimeout(() => closeModal(), 1600);
+  });
+
+  modal.addEventListener("click", (ev) => {
+    if (ev.target === modal) closeModal();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !modal.classList.contains("hidden")) closeModal();
+  });
+</script>

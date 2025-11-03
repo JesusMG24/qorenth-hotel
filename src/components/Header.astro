@@ -1,54 +1,371 @@
+---
+import {
+  getLangFromUrl,
+  useTranslations,
+  useTranslatedPath,
+} from "../i18n/utils";
+import { languages } from "../i18n/ui";
+import Calendar from "./Calendar.astro";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const translatePath = useTranslatedPath(lang);
+---
+
 <header class="w-screen shadow">
-  <div class="flex justify-between px-10 border-b border-black">
-    <h1 class="text-center text-yellow-600 text-xs">
-      <strong class="text-2xl">HOTEL</strong><br />MÉRIDA, YUCATAN<br />CENTRO
-      HISTÓRICO
-    </h1>
-    <button id="menu-btn" class="md:hidden focus:outline-none">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke-width="2"
-        stroke="currentColor"
-        class="p-2 w-12 h-12 border bg-gray-200 border-gray-500 rounded-full shadow"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M4 6h16M4 12h16m-7 6h7"></path>
-      </svg>
-    </button>
-  </div>
   <div
-    id="date-container"
-    class="px-10 py-3 text-center text-gray-600 border-b border-black"
+    class="flex justify-between items-center px-10 xl:px-100 border-b border-black"
   >
-    <span id="current-date"></span> / <span id="tomorrow-date"></span>
+    <a href={translatePath("/")} class="text-center text-yellow-600 text-xs">
+      <strong class="text-2xl">{t("hotel.name")}</strong><br />{
+        t("hotel.location")
+      }<br />{t("hotel.area")}
+    </a>
+
+    <!-- NavLink -->
+    <div class="hidden xl:flex gap-5 h-full">
+      <a
+        href="#habitaciones"
+        class="block text-sm font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100"
+      >
+        {t("nav.rooms")}
+      </a>
+      <a
+        href="#residencias"
+        class="block text-sm font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100"
+      >
+        {t("nav.residences")}
+      </a>
+      <a
+        href="#gastronomia"
+        class="block text-sm font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100"
+      >
+        {t("nav.gastronomy")}
+      </a>
+      <a
+        href="#eventos"
+        class="block text-sm font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100"
+      >
+        {t("nav.events")}
+      </a>
+    </div>
+
+    <!-- Language Switcher and Menu Button Container -->
+    <div class="flex items-center gap-4">
+      <!-- Language Switcher -->
+      <div class="relative">
+        <button
+          id="lang-switcher-btn"
+          class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-yellow-600 focus:outline-none"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"
+            ></path>
+          </svg>
+          {languages[lang].slice(0, 2).toUpperCase()}
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+
+        <!-- Language Dropdown -->
+        <div
+          id="lang-dropdown"
+          class="absolute right-0 mt-2 w-32 bg-white border border-gray-200 rounded-md shadow-lg z-50 hidden"
+        >
+          {
+            Object.entries(languages).map(([langCode, langName]) => (
+              <a
+                href={translatePath("/", langCode)}
+                class={`block px-4 py-2 text-sm hover:bg-yellow-600 hover:text-white transition-colors ${
+                  lang === langCode
+                    ? "bg-black text-white font-medium"
+                    : "text-gray-700"
+                }`}
+              >
+                {langName}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <!-- Mobile Menu Button -->
+      <button id="menu-btn" class="xl:hidden focus:outline-none">
+        <svg
+          id="menu-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          class="p-2 w-12 h-12 border bg-gray-200 border-gray-500 rounded-full shadow"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M4 6h16M4 12h16m-7 6h7"></path>
+        </svg>
+        <svg
+          id="close-icon"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke-width="2"
+          stroke="currentColor"
+          class="p-2 w-12 h-12 border bg-gray-200 border-gray-500 rounded-full shadow hidden"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            d="M6 18L18 6M6 6l12 12"></path>
+        </svg>
+      </button>
+    </div>
   </div>
-  <div class="p-3 flex flex-col gap-3">
-    <p class="text-gray-600 text-center text-sm">
-      <span id="booking-summary" class="cursor-pointer hover:text-yellow-600"
-        >1 habitación, 1 huésped</span
-      > | <span>Precios especiales</span>
-    </p>
-    <button
-      id="modify-booking"
-      class="w-full text-white bg-black hover:bg-yellow-600 py-3"
+
+  <!-- Mobile Navigation Menu -->
+  <nav
+    id="mobile-nav"
+    class="fixed inset-0 bg-white/90 z-50 transform translate-x-full transition-transform duration-300 ease-in-out xl:hidden"
+  >
+    <div class="flex flex-col h-full">
+      <!-- Header with close button -->
+      <div
+        class="flex justify-between items-center p-6 border-b border-gray-200"
+      >
+        <h2 class="text-xl font-bold text-black">{t("nav.menu")}</h2>
+        <button id="close-nav" class="p-2">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Navigation Links -->
+      <div class="flex-1 overflow-y-auto">
+        <div class="p-6 space-y-6">
+          <a
+            href="#habitaciones"
+            class="block text-lg font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100 pb-4"
+          >
+            {t("nav.rooms")}
+          </a>
+          <a
+            href="#residencias"
+            class="block text-lg font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100 pb-4"
+          >
+            {t("nav.residences")}
+          </a>
+          <a
+            href="#gastronomia"
+            class="block text-lg font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100 pb-4"
+          >
+            {t("nav.gastronomy")}
+          </a>
+          <a
+            href="#eventos"
+            class="block text-lg font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100 pb-4"
+          >
+            {t("nav.events")}
+          </a>
+          <a
+            href="#spa"
+            class="block text-lg font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100 pb-4"
+          >
+            {t("nav.spa")}
+          </a>
+          <a
+            href="#tours"
+            class="block text-lg font-medium text-gray-800 hover:text-yellow-600 transition-colors border-b border-gray-100 pb-4"
+          >
+            {t("nav.tours")}
+          </a>
+        </div>
+
+        <!-- Language Switcher for Mobile -->
+        <div class="p-6 border-t border-gray-100">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">Language</h3>
+          <div class="grid grid-cols-3 gap-2">
+            {
+              Object.entries(languages).map(([langCode, langName]) => (
+                <a
+                  href={translatePath("/", langCode)}
+                  class={`block px-3 py-2 text-sm text-center rounded-md transition-colors ${
+                    lang === langCode
+                      ? "bg-black text-white hover:bg-yellow-600 hover:text-white"
+                      : "bg-gray-100 text-gray-700 hover:bg-yellow-600 hover:text-white"
+                  }`}
+                >
+                  {langName}
+                </a>
+              ))
+            }
+          </div>
+        </div>
+
+        <!-- Contact Information -->
+        <div class="p-6 bg-gray-50 mt-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            {t("contact.title")}
+          </h3>
+          <div class="space-y-3">
+            <a
+              href="tel:+529991234567"
+              class="flex items-center text-gray-600 hover:text-yellow-600 transition-colors"
+            >
+              <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"
+                ></path>
+              </svg>
+              {t("contact.phone")}
+            </a>
+            <a
+              href="mailto:hotelmerida@hoteles.com"
+              class="flex items-center text-gray-600 hover:text-yellow-600 transition-colors"
+            >
+              <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"
+                ></path>
+                <path
+                  d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"
+                ></path>
+              </svg>
+              {t("contact.email")}
+            </a>
+            <a
+              href="https://maps.app.goo.gl/vi2zcPR35RMMVBZr6"
+              target="_blank"
+              class="flex items-center text-gray-600 hover:text-yellow-600 transition-colors"
+            >
+              <svg class="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                  fill-rule="evenodd"
+                  d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              {t("contact.address")}
+            </a>
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div class="p-6">
+          <h3 class="text-lg font-semibold text-gray-800 mb-4">
+            {t("social.title")}
+          </h3>
+          <div class="flex gap-4">
+            <a
+              href="https://www.instagram.com/"
+              target="_blank"
+              class="w-10 h-10 bg-gray-200 hover:bg-yellow-600 hover:text-white rounded-full flex items-center justify-center transition-colors"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 6.621 5.367 11.988 11.988 11.988s11.987-5.367 11.987-11.988C24.004 5.367 18.637.001 12.017.001zm5.568 16.108c-.492.5-1.096.9-1.804 1.193-.708.293-1.456.44-2.24.44h-3.082c-.784 0-1.532-.147-2.24-.44-.708-.293-1.312-.693-1.804-1.193-.492-.5-.892-1.104-1.185-1.812-.293-.708-.44-1.456-.44-2.24V8.974c0-.784.147-1.532.44-2.24.293-.708.693-1.312 1.185-1.812.492-.5 1.096-.9 1.804-1.193.708-.293 1.456-.44 2.24-.44h3.082c.784 0 1.532.147 2.24.44.708.293 1.312.693 1.804 1.193.492.5.892 1.104 1.185 1.812.293.708.44 1.456.44 2.24v3.082c0 .784-.147 1.532-.44 2.24-.293.708-.693 1.312-1.185 1.812z"
+                ></path>
+                <path
+                  d="M12.017 7.075c-2.717 0-4.912 2.196-4.912 4.912s2.196 4.912 4.912 4.912 4.912-2.196 4.912-4.912-2.196-4.912-4.912-4.912zm0 8.104c-1.76 0-3.192-1.432-3.192-3.192s1.432-3.192 3.192-3.192 3.192 1.432 3.192 3.192-1.432 3.192-3.192 3.192z"
+                ></path>
+                <circle cx="16.948" cy="7.036" r="1.156"></circle>
+              </svg>
+            </a>
+            <a
+              href="https://www.facebook.com/"
+              target="_blank"
+              class="w-10 h-10 bg-gray-200 hover:bg-yellow-600 hover:text-white rounded-full flex items-center justify-center transition-colors"
+            >
+              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path
+                  d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"
+                ></path>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom CTA -->
+      <div class="p-6 bg-black">
+        <button
+          class="w-full bg-white text-black py-3 px-6 font-semibold hover:bg-yellow-600 hover:text-white transition-colors"
+        >
+          {t("booking.reserve")}
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <div
+    class="flex flex-col md:flex-row items-center justify-center w-screen md:gap-5"
+  >
+    <!-- Date Picker Section and Calendar moved to Calendar component -->
+    <Calendar t={t} />
+
+    <div
+      class="p-3 flex w-full flex-col items-center gap-3 md:gap-2 md:w-max md:flex-row"
     >
-      Ver habitaciones y precios
-    </button>
+      <p class="text-gray-600 text-center text-sm md:flex">
+        <span
+          id="booking-summary"
+          class="cursor-pointer hover:text-yellow-600 md:border-l md:border-gray-300 md:px-3 md:text-nowrap"
+          data-single-room={t("booking.summary")}
+          data-multiple-rooms={t("booking.rooms")}
+          >1 {t("booking.summary").split(",")[0]}, 1 {
+            t("booking.summary").split(",")[1]
+          }</span
+        ><span class="md:hidden"> | </span><span
+          class="md:border-l md:px-5 md:border-gray-300 md:text-nowrap"
+          >{t("booking.special")}</span
+        >
+      </p>
+      <a
+        href={translatePath("/rooms")}
+        class="w-full md:w-60 block text-center text-white bg-black hover:bg-yellow-600 py-3"
+      >
+        {t("booking.view")}
+      </a>
+    </div>
   </div>
 </header>
 
-<!-- Modal Overlay -->
+<!-- Booking Modal Overlay -->
 <div
   id="booking-modal"
-  class="fixed inset-0 bg-opacity-50 backdrop-blur-sm hidden z-50 items-center justify-center"
+  class="fixed inset-0 bg-white/30 bg-opacity-50 backdrop-blur-sm hidden z-50 items-center justify-center"
 >
   <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
     <div class="flex justify-between items-center mb-4">
-      <h3 class="text-lg font-semibold">Modificar reserva</h3>
+      <h3 class="text-lg font-semibold">{t("booking.modify")}</h3>
       <button id="close-modal" class="text-gray-500 hover:text-gray-700">
         <svg
           class="w-6 h-6"
@@ -67,7 +384,7 @@
 
     <div class="space-y-4">
       <div class="flex items-center justify-between">
-        <label class="text-sm font-medium">Habitaciones:</label>
+        <label class="text-sm font-medium">{t("booking.rooms.label")}</label>
         <div class="flex items-center gap-3">
           <button
             id="rooms-minus"
@@ -84,7 +401,7 @@
       </div>
 
       <div class="flex items-center justify-between">
-        <label class="text-sm font-medium">Huéspedes:</label>
+        <label class="text-sm font-medium">{t("booking.guests")}</label>
         <div class="flex items-center gap-3">
           <button
             id="guests-minus"
@@ -106,44 +423,124 @@
         id="cancel-changes"
         class="flex-1 py-2 px-4 border border-gray-300 rounded-md hover:bg-yellow-600"
       >
-        Cancelar
+        {t("booking.cancel")}
       </button>
       <button
         id="apply-changes"
         class="flex-1 py-2 px-4 bg-black text-white rounded-md hover:bg-yellow-600"
       >
-        Aplicar
+        {t("booking.apply")}
       </button>
     </div>
   </div>
 </div>
 
 <script is:inline>
-  // Date functionality
-  const currentDate = new Date();
-  const tomorrow = new Date(currentDate);
-  tomorrow.setDate(currentDate.getDate() + 1);
+  // Language Switcher
+  const langSwitcherBtn = document.getElementById("lang-switcher-btn");
+  const langDropdown = document.getElementById("lang-dropdown");
 
-  const options = {
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-  };
+  langSwitcherBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    langDropdown.classList.toggle("hidden");
+  });
 
-  document.getElementById("current-date").textContent =
-    currentDate.toLocaleDateString("es-ES", options);
-  document.getElementById("tomorrow-date").textContent =
-    tomorrow.toLocaleDateString("es-ES", options);
+  // Close dropdown when clicking outside
+  document.addEventListener("click", (e) => {
+    if (
+      !langSwitcherBtn.contains(e.target) &&
+      !langDropdown.contains(e.target)
+    ) {
+      langDropdown.classList.add("hidden");
+    }
+  });
 
-  // Booking system
+  // Mobile Navigation
+  const menuBtn = document.getElementById("menu-btn");
+  const closeNav = document.getElementById("close-nav");
+  const mobileNav = document.getElementById("mobile-nav");
+  const menuIcon = document.getElementById("menu-icon");
+  const closeIcon = document.getElementById("close-icon");
+
+  function openMobileNav() {
+    mobileNav.classList.remove("translate-x-full");
+    mobileNav.classList.add(
+      "translate-x-0",
+      "md:translate-x-[50vw]",
+      "md:w-[50vw]"
+    );
+    document.body.style.overflow = "hidden"; // Prevent scrolling
+  }
+
+  function closeMobileNav() {
+    mobileNav.classList.add("translate-x-full");
+    mobileNav.classList.remove(
+      "translate-x-0",
+      "md:translate-x-[50vw]",
+      "md:w-[50vw]"
+    );
+    document.body.style.overflow = ""; // Restore scrolling
+  }
+
+  menuBtn.addEventListener("click", openMobileNav);
+  closeNav.addEventListener("click", closeMobileNav);
+
+  // Close mobile nav when clicking on a link
+  const navLinks = mobileNav.querySelectorAll('a[href^="#"]');
+  navLinks.forEach((link) => {
+    link.addEventListener("click", closeMobileNav);
+  });
+
+  // Close mobile nav on escape key
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeMobileNav();
+      // calendar dropdown hidden handled inside Calendar component
+      document.getElementById("lang-dropdown")?.classList.add("hidden");
+    }
+  });
+
+  // Booking system (unchanged)
   let rooms = 1;
   let guests = 1;
   let tempRooms = 1;
   let tempGuests = 1;
 
+  const bookingSummaryEl = document.getElementById("booking-summary");
+  const singleRoomText = bookingSummaryEl
+    .getAttribute("data-single-room")
+    .split(",");
+  const multipleRoomsText = bookingSummaryEl
+    .getAttribute("data-multiple-rooms")
+    .split(",");
+
   function updateSummary() {
-    const summary = `${rooms} habitación${rooms > 1 ? "es" : ""}, ${guests} huésped${guests > 1 ? "es" : ""}`;
-    document.getElementById("booking-summary").textContent = summary;
+    let roomText, guestText;
+
+    const singleRoomFullText =
+      bookingSummaryEl.getAttribute("data-single-room");
+    const multipleRoomsFullText = bookingSummaryEl.getAttribute(
+      "data-multiple-rooms"
+    );
+
+    if (rooms === 1) {
+      const roomWord = singleRoomFullText.split(",")[0].trim();
+      roomText = `1 ${roomWord}`;
+    } else {
+      const roomWord = multipleRoomsFullText.split(",")[0].trim();
+      roomText = `${rooms} ${roomWord}`;
+    }
+
+    if (guests === 1) {
+      const guestWord = singleRoomFullText.split(",")[1].trim();
+      guestText = `1 ${guestWord}`;
+    } else {
+      const guestWord = multipleRoomsFullText.split(",")[1].trim();
+      guestText = `${guests} ${guestWord}`;
+    }
+
+    const summary = `${roomText}, ${guestText}`;
+    bookingSummaryEl.textContent = summary;
   }
 
   function updateModalCounts() {
@@ -151,7 +548,7 @@
     document.getElementById("guests-count").textContent = tempGuests;
   }
 
-  // Modal controls - Changed from "modify-booking" to "booking-summary"
+  // Modal controls
   document.getElementById("booking-summary").addEventListener("click", () => {
     tempRooms = rooms;
     tempGuests = guests;
@@ -170,13 +567,29 @@
     document.getElementById("booking-modal").classList.remove("flex");
   });
 
+  function saveRoomsGuestsToLocalStorage() {
+    localStorage.setItem("rooms", rooms);
+    localStorage.setItem("guests", guests);
+  }
+
   document.getElementById("apply-changes").addEventListener("click", () => {
     rooms = tempRooms;
     guests = tempGuests;
     updateSummary();
+    saveRoomsGuestsToLocalStorage();
     document.getElementById("booking-modal").classList.add("hidden");
     document.getElementById("booking-modal").classList.remove("flex");
   });
+
+  // On page load, restore from localStorage if available:
+  function restoreRoomsGuestsFromLocalStorage() {
+    const roomsStr = localStorage.getItem("rooms");
+    const guestsStr = localStorage.getItem("guests");
+    if (roomsStr) rooms = parseInt(roomsStr, 10);
+    if (guestsStr) guests = parseInt(guestsStr, 10);
+    updateSummary();
+  }
+  restoreRoomsGuestsFromLocalStorage();
 
   // Room controls
   document.getElementById("rooms-plus").addEventListener("click", () => {

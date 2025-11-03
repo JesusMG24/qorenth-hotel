@@ -1,0 +1,109 @@
+---
+import {
+  getLangFromUrl,
+  useTranslations,
+  useTranslatedPath,
+} from "../i18n/utils";
+
+const lang = getLangFromUrl(Astro.url);
+const t = useTranslations(lang);
+const translatePath = useTranslatedPath(lang);
+---
+
+<section id="gastronomia" class="w-screen p-5 xl:h-260 xl:relative">
+  <div
+    class="bg-[#efe5d8] p-5 xl:px-30 xl:py-15 flex flex-col gap-5 items-center md:items-start xl:w-1/3 xl:absolute xl:right-70"
+  >
+    <h2 class="font-bold text-2xl md:text-4xl xl:w-70">
+      {t("food.title")}
+    </h2>
+    <p class="text-lg">
+      {t("food.description")}
+    </p>
+    <a
+      href={translatePath("/gastronomy")}
+      class="text-white bg-black text-center w-full md:w-1/3 xl:w-60 py-3 hover:bg-yellow-600 hover:text-black"
+      >{t("food.button")}</a
+    >
+  </div>
+
+  <!-- Desktop Images Style -->
+  <img
+    src="/images/food1.webp"
+    class="hidden absolute aspect-square h-210 object-cover right-215 top-50 xl:block"
+  />
+  <img
+    src="/images/food2.jpg"
+    class="hidden absolute h-130 w-170 object-cover right-55 top-120 xl:block border-8 border-white"
+  />
+  <div class="relative overflow-hidden h-75 md:h-140 xl:hidden">
+    <img
+      id="foodImage1"
+      src="/images/food1.webp"
+      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-100"
+    />
+    <img
+      id="foodImage2"
+      src="/images/food2.jpg"
+      class="absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ease-in-out opacity-0"
+    />
+
+    <!-- Navigation arrows -->
+    <button
+      id="foodPrevBtn"
+      class="absolute left-4 top-1/2 transform -translate-y-1/2 text-white bg-black/70 bg-opacity-50 hover:bg-opacity-75 py-2 px-4 rounded-full"
+    >
+      &#8249;
+    </button>
+    <button
+      id="foodNextBtn"
+      class="absolute right-4 top-1/2 transform -translate-y-1/2 text-white bg-black/70 bg-opacity-50 hover:bg-opacity-75 py-2 px-4 rounded-full"
+    >
+      &#8250;
+    </button>
+
+    <!-- Counter -->
+    <div class="absolute right-0 bottom-0 text-white bg-black px-7 py-4">
+      <p><span id="foodSliderCount">1</span>/2</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const image1 = document.getElementById("foodImage1");
+    const image2 = document.getElementById("foodImage2");
+    const prevBtn = document.getElementById("foodPrevBtn");
+    const nextBtn = document.getElementById("foodNextBtn");
+    const sliderCount = document.getElementById("foodSliderCount");
+
+    let currentSlide = 0;
+    const totalSlides = 2;
+    const images = [image1, image2];
+
+    function updateCarousel() {
+      images.forEach((img, index) => {
+        if (index === currentSlide) {
+          img?.classList.remove("opacity-0");
+          img?.classList.add("opacity-100");
+        } else {
+          img?.classList.remove("opacity-100");
+          img?.classList.add("opacity-0");
+        }
+      });
+      if (sliderCount) {
+        sliderCount.textContent = (currentSlide + 1).toString();
+      }
+    }
+
+    nextBtn?.addEventListener("click", () => {
+      currentSlide = (currentSlide + 1) % totalSlides;
+      updateCarousel();
+    });
+
+    prevBtn?.addEventListener("click", () => {
+      currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+      updateCarousel();
+    });
+  });
+</script>
