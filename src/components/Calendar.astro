@@ -21,14 +21,27 @@ const translations = {
 };
 ---
 
-<!-- Single Calendar Button -->
+<style>
+  html,
+  body {
+    overflow-x: hidden;
+  }
+
+  #calendar-modal {
+    transition:
+      opacity 0.2s ease,
+      visibility 0.2s ease;
+  }
+</style>
+
+<!-- Date Selector Container -->
 <div
   id="date-container"
-  class="w-full xl:w-max px-10 py-3 md:p-0 border-b md:border-none border-black flex justify-center"
+  class="w-full xl:w-max flex justify-center border-b md:border-none border-black py-3 px-4 sm:px-6 md:px-8 xl:px-10 overflow-x-hidden"
 >
   <button
     id="calendar-btn"
-    class="flex items-center gap-2 text-gray-600 hover:text-yellow-600 cursor-pointer border border-gray-300 rounded px-4 py-2 bg-white"
+    class="flex items-center gap-2 text-gray-600 hover:text-yellow-600 cursor-pointer border border-gray-300 rounded px-4 py-2 bg-white shadow-sm transition-colors"
   >
     <svg
       class="w-5 h-5 text-gray-400"
@@ -47,12 +60,15 @@ const translations = {
   </button>
 </div>
 
-<!-- Calendar Modal (unchanged) -->
+<!-- Calendar Modal -->
 <div
   id="calendar-modal"
-  class="fixed inset-0 bg-white/30 bg-opacity-50 backdrop-blur-sm hidden z-50 items-center justify-center"
+  class="fixed inset-0 bg-black/30 backdrop-blur-sm hidden z-50 items-center justify-center"
 >
-  <div class="bg-white rounded-lg p-6 max-w-md w-full mx-4 shadow-xl">
+  <div
+    class="bg-white rounded-lg p-6 max-w-md w-full mx-4 sm:mx-auto shadow-xl"
+  >
+    <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <h3 id="calendar-title" class="font-semibold">
         {t("calendar.select.date")}
@@ -73,7 +89,7 @@ const translations = {
       </button>
     </div>
 
-    <!-- Calendar Navigation -->
+    <!-- Month Navigation -->
     <div class="flex justify-between items-center mb-4">
       <button id="prev-month" class="p-2 hover:bg-gray-100 rounded">
         <svg
@@ -106,42 +122,33 @@ const translations = {
       </button>
     </div>
 
-    <!-- Calendar Grid -->
-    <div class="grid grid-cols-7 gap-1 mb-4">
-      <div class="text-center text-xs font-medium text-gray-500 py-2">
-        {t("calendar.days.su")}
-      </div>
-      <div class="text-center text-xs font-medium text-gray-500 py-2">
-        {t("calendar.days.mo")}
-      </div>
-      <div class="text-center text-xs font-medium text-gray-500 py-2">
-        {t("calendar.days.tu")}
-      </div>
-      <div class="text-center text-xs font-medium text-gray-500 py-2">
-        {t("calendar.days.we")}
-      </div>
-      <div class="text-center text-xs font-medium text-gray-500 py-2">
-        {t("calendar.days.th")}
-      </div>
-      <div class="text-center text-xs font-medium text-gray-500 py-2">
-        {t("calendar.days.fr")}
-      </div>
-      <div class="text-center text-xs font-medium text-gray-500 py-2">
-        {t("calendar.days.sa")}
-      </div>
+    <!-- Weekdays -->
+    <div
+      class="grid grid-cols-7 gap-1 mb-2 text-center text-xs font-medium text-gray-500"
+    >
+      <div>{t("calendar.days.su")}</div>
+      <div>{t("calendar.days.mo")}</div>
+      <div>{t("calendar.days.tu")}</div>
+      <div>{t("calendar.days.we")}</div>
+      <div>{t("calendar.days.th")}</div>
+      <div>{t("calendar.days.fr")}</div>
+      <div>{t("calendar.days.sa")}</div>
     </div>
-    <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
 
+    <!-- Calendar Days -->
+    <div id="calendar-grid" class="grid grid-cols-7 gap-1 mb-4"></div>
+
+    <!-- Actions -->
     <div class="mt-6 flex gap-3">
       <button
         id="calendar-cancel"
-        class="flex-1 py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100"
+        class="flex-1 py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-100 transition"
       >
         {t("calendar.cancel")}
       </button>
       <button
         id="calendar-confirm"
-        class="flex-1 py-2 px-4 bg-black text-white rounded-md hover:bg-yellow-600"
+        class="flex-1 py-2 px-4 bg-black text-white rounded-md hover:bg-yellow-600 transition"
       >
         {t("calendar.confirm")}
       </button>
@@ -150,94 +157,76 @@ const translations = {
 </div>
 
 <script is:inline define:vars={{ translations }}>
-  // Calendar functionality (self-contained)
   let currentCalendarDate = new Date();
   let selectedDate = null;
   let isSelectingCheckin = true;
   let checkinDate = new Date();
-  let checkoutDate = new Date(Date.now() + 24 * 60 * 60 * 1000); // Tomorrow
+  let checkoutDate = new Date(Date.now() + 24 * 60 * 60 * 1000);
 
-  const calendarModal = document.getElementById("calendar-modal");
-  const calendarTitle = document.getElementById("calendar-title");
-  const calendarMonthYear = document.getElementById("calendar-month-year");
-  const calendarGrid = document.getElementById("calendar-grid");
-  const prevMonthBtn = document.getElementById("prev-month");
-  const nextMonthBtn = document.getElementById("next-month");
-  const closeCalendarBtn = document.getElementById("close-calendar");
-  const calendarConfirmBtn = document.getElementById("calendar-confirm");
-  const calendarCancelBtn = document.getElementById("calendar-cancel");
-  const calendarBtn = document.getElementById("calendar-btn");
-  const calendarBtnLabel = document.getElementById("calendar-btn-label");
+  const modal = document.getElementById("calendar-modal");
+  const title = document.getElementById("calendar-title");
+  const monthYear = document.getElementById("calendar-month-year");
+  const grid = document.getElementById("calendar-grid");
+  const prevBtn = document.getElementById("prev-month");
+  const nextBtn = document.getElementById("next-month");
+  const closeBtn = document.getElementById("close-calendar");
+  const confirmBtn = document.getElementById("calendar-confirm");
+  const cancelBtn = document.getElementById("calendar-cancel");
+  const openBtn = document.getElementById("calendar-btn");
+  const label = document.getElementById("calendar-btn-label");
 
-  // Initialize dates
-  updateDateDisplays();
-
-  function updateDateDisplays() {
+  function updateDisplay() {
     const options = { month: "short", day: "numeric" };
-    const checkinStr = checkinDate.toLocaleDateString(undefined, options);
-    const checkoutStr = checkoutDate.toLocaleDateString(undefined, options);
-    calendarBtnLabel.textContent = `${checkinStr} – ${checkoutStr}`;
+    const ci = checkinDate.toLocaleDateString(undefined, options);
+    const co = checkoutDate.toLocaleDateString(undefined, options);
+    label.textContent = `${ci} – ${co}`;
   }
 
   function renderCalendar() {
-    const year = currentCalendarDate.getFullYear();
-    const month = currentCalendarDate.getMonth();
+    const y = currentCalendarDate.getFullYear();
+    const m = currentCalendarDate.getMonth();
+    const first = new Date(y, m, 1);
+    const last = new Date(y, m + 1, 0);
+    const startDay = first.getDay();
+    const days = last.getDate();
 
-    // Update header with translated month name
-    const translatedMonth = translations.months[month];
-    calendarMonthYear.textContent = `${translatedMonth} ${year}`;
+    monthYear.textContent = `${translations.months[m]} ${y}`;
+    grid.innerHTML = "";
 
-    // Clear grid
-    calendarGrid.innerHTML = "";
-
-    // Get first day of month and number of days
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-
-    // Add empty cells for days before the first day of the month
-    for (let i = 0; i < startingDayOfWeek; i++) {
-      const emptyCell = document.createElement("div");
-      emptyCell.className = "h-8";
-      calendarGrid.appendChild(emptyCell);
+    for (let i = 0; i < startDay; i++) {
+      grid.appendChild(document.createElement("div"));
     }
 
-    // Add days of the month
-    for (let day = 1; day <= daysInMonth; day++) {
-      const dayCell = document.createElement("button");
-      const cellDate = new Date(year, month, day);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      dayCell.textContent = day;
-      dayCell.className =
-        "h-8 w-8 text-sm rounded hover:bg-gray-100 flex items-center justify-center";
+    for (let d = 1; d <= days; d++) {
+      const btn = document.createElement("button");
+      const date = new Date(y, m, d);
+      btn.textContent = d;
+      btn.className =
+        "h-8 w-8 text-sm rounded flex items-center justify-center transition";
 
-      // Disable past dates
-      if (cellDate < today) {
-        dayCell.disabled = true;
-        dayCell.className += " text-gray-300 cursor-not-allowed";
+      if (date < today) {
+        btn.disabled = true;
+        btn.classList.add("text-gray-300", "cursor-not-allowed");
       } else {
-        // Highlight selected dates
-        if (isDateSelected(cellDate)) {
-          dayCell.className += " bg-black text-white hover:bg-yellow-600";
-        } else if (isDateInRange(cellDate)) {
-          dayCell.className += " bg-yellow-100 hover:bg-yellow-200";
-        }
+        if (isSelected(date))
+          btn.classList.add("bg-black", "text-white", "hover:bg-yellow-600");
+        else if (isInRange(date))
+          btn.classList.add("bg-yellow-100", "hover:bg-yellow-200");
+        else btn.classList.add("hover:bg-gray-100");
 
-        dayCell.addEventListener("click", () => {
-          selectedDate = new Date(cellDate);
+        btn.addEventListener("click", () => {
+          selectedDate = new Date(date);
           if (isSelectingCheckin) {
             checkinDate = new Date(selectedDate);
-            // If checkout is before checkin, set checkout to day after checkin
             if (checkoutDate <= checkinDate) {
               checkoutDate = new Date(checkinDate);
               checkoutDate.setDate(checkoutDate.getDate() + 1);
             }
-            isSelectingCheckin = false; // Next click is for checkout
+            isSelectingCheckin = false;
           } else {
-            // If selecting checkout and it's before checkin, swap them
             if (selectedDate <= checkinDate) {
               checkoutDate = new Date(checkinDate);
               checkinDate = new Date(selectedDate);
@@ -245,92 +234,78 @@ const translations = {
             } else {
               checkoutDate = new Date(selectedDate);
             }
-            isSelectingCheckin = true; // Reset for next open
+            isSelectingCheckin = true;
           }
           renderCalendar();
         });
       }
 
-      calendarGrid.appendChild(dayCell);
+      grid.appendChild(btn);
     }
   }
 
-  function isDateSelected(date) {
+  function isSelected(date) {
     return (
       date.getTime() === checkinDate.getTime() ||
       date.getTime() === checkoutDate.getTime()
     );
   }
 
-  function isDateInRange(date) {
+  function isInRange(date) {
     return date > checkinDate && date < checkoutDate;
   }
 
-  function saveBookingToLocalStorage() {
+  function saveToStorage() {
     localStorage.setItem("checkin", checkinDate.toISOString());
     localStorage.setItem("checkout", checkoutDate.toISOString());
   }
 
-  // Single calendar button event
-  calendarBtn.addEventListener("click", () => {
+  openBtn.addEventListener("click", () => {
     isSelectingCheckin = true;
-    calendarTitle.textContent = translations.calendarSelectCheckin;
+    title.textContent = translations.calendarSelectCheckin;
     currentCalendarDate = new Date(checkinDate);
     renderCalendar();
-    calendarModal.classList.remove("hidden");
-    calendarModal.classList.add("flex");
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
   });
 
-  // Calendar navigation
-  prevMonthBtn.addEventListener("click", () => {
+  [closeBtn, cancelBtn].forEach((btn) =>
+    btn.addEventListener("click", closeModal)
+  );
+  confirmBtn.addEventListener("click", () => {
+    updateDisplay();
+    saveToStorage();
+    closeModal();
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target.id === "calendar-modal") closeModal();
+  });
+
+  prevBtn.addEventListener("click", () => {
     currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
     renderCalendar();
   });
-
-  nextMonthBtn.addEventListener("click", () => {
+  nextBtn.addEventListener("click", () => {
     currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
     renderCalendar();
   });
 
-  // Calendar modal controls
-  closeCalendarBtn.addEventListener("click", () => {
-    calendarModal.classList.add("hidden");
-    calendarModal.classList.remove("flex");
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
     isSelectingCheckin = true;
-  });
-
-  calendarCancelBtn.addEventListener("click", () => {
-    calendarModal.classList.add("hidden");
-    calendarModal.classList.remove("flex");
-    isSelectingCheckin = true;
-  });
-
-  calendarConfirmBtn.addEventListener("click", () => {
-    updateDateDisplays();
-    saveBookingToLocalStorage();
-    calendarModal.classList.add("hidden");
-    calendarModal.classList.remove("flex");
-    isSelectingCheckin = true;
-  });
-
-  // Close calendar when clicking outside
-  calendarModal.addEventListener("click", (e) => {
-    if (e.target.id === "calendar-modal") {
-      calendarModal.classList.add("hidden");
-      calendarModal.classList.remove("flex");
-      isSelectingCheckin = true;
-    }
-  });
-
-  // On page load, restore from localStorage if available:
-  function restoreBookingFromLocalStorage() {
-    const checkinStr = localStorage.getItem("checkin");
-    const checkoutStr = localStorage.getItem("checkout");
-    if (checkinStr && checkoutStr) {
-      checkinDate = new Date(checkinStr);
-      checkoutDate = new Date(checkoutStr);
-      updateDateDisplays();
-    }
   }
-  restoreBookingFromLocalStorage();
+
+  function restoreFromStorage() {
+    const ci = localStorage.getItem("checkin");
+    const co = localStorage.getItem("checkout");
+    if (ci && co) {
+      checkinDate = new Date(ci);
+      checkoutDate = new Date(co);
+    }
+    updateDisplay();
+  }
+
+  restoreFromStorage();
 </script>

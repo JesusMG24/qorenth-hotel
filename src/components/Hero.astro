@@ -5,7 +5,9 @@ const lang = getLangFromUrl(Astro.url);
 const t = useTranslations(lang);
 ---
 
-<section class="w-screen h-screen flex flex-col text-gray-800 shadow">
+<section
+  class="w-screen h-[75vh] md:h-[85vh] 2xl:h-[86vh] flex flex-col text-gray-800 shadow"
+>
   <video
     class="inset-0 w-full h-full object-cover brightness-50"
     autoplay
